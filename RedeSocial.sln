@@ -3,7 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.5.33414.496
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RedeSocial.API", "RedeSocial.API\RedeSocial.API.csproj", "{5497E937-7ACB-4447-865C-E0C044516226}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RedeSocial.API", "RedeSocial.API\RedeSocial.API.csproj", "{5497E937-7ACB-4447-865C-E0C044516226}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RedeSocial.BLL", "RedeSocial.BLL\RedeSocial.BLL.csproj", "{49CEAB1E-B907-4AE4-86B7-6243A2F13A98}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RedeSocial.DAL", "RedeSocial.DAL\RedeSocial.DAL.csproj", "{7AB93E0E-5BB2-441B-8929-17F3C60ABC70}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +19,14 @@ Global
 		{5497E937-7ACB-4447-865C-E0C044516226}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5497E937-7ACB-4447-865C-E0C044516226}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5497E937-7ACB-4447-865C-E0C044516226}.Release|Any CPU.Build.0 = Release|Any CPU
+		{49CEAB1E-B907-4AE4-86B7-6243A2F13A98}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{49CEAB1E-B907-4AE4-86B7-6243A2F13A98}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{49CEAB1E-B907-4AE4-86B7-6243A2F13A98}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{49CEAB1E-B907-4AE4-86B7-6243A2F13A98}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7AB93E0E-5BB2-441B-8929-17F3C60ABC70}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7AB93E0E-5BB2-441B-8929-17F3C60ABC70}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7AB93E0E-5BB2-441B-8929-17F3C60ABC70}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7AB93E0E-5BB2-441B-8929-17F3C60ABC70}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

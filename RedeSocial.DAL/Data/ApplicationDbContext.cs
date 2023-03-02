@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using RedeSocial.API.Model;
+using RedeSocial.API.Models;
 
 namespace RedeSocial.API.Data
 {
@@ -10,7 +12,6 @@ namespace RedeSocial.API.Data
         {
 
         }
-//        public DbSet<Estudante> Estudantes { get; set; }
-
+        public DbSet<Perfil> Perfis { get; set; }
     }
 }

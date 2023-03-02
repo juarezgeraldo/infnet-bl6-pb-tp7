@@ -54,6 +54,10 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
+builder.Services.AddMvc(options =>
+{
+    options.SuppressAsyncSuffixInActionNames = false;
+});
 
 builder.Services.AddSwaggerGen(option =>
 {

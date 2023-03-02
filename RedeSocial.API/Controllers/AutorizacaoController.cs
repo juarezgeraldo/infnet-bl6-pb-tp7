@@ -1,6 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.Extensions.Options;
@@ -28,15 +26,15 @@ namespace RedeSocial.API.Controllers
 
         [HttpPost]
         [Route("Registrar")]
-        public async Task<IActionResult> Registrar([FromBody] DetalheUsuario detalheUsuario)
+        public async Task<IActionResult> Registrar([FromBody] Usuario usuario)
         {
-            if(!ModelState.IsValid || detalheUsuario == null)
+            if(!ModelState.IsValid || usuario == null)
             {
                 return new BadRequestObjectResult(new { Mensagem = "Registro do Usuário não efetuado." });
             }
 
-            var identidadeUsuario = new IdentityUser() { UserName = detalheUsuario.NomeUsuario, Email = detalheUsuario.EmailUsuario };
-            var resultado = await _userManager.CreateAsync(identidadeUsuario, detalheUsuario.SenhaUsuario);
+            var identidadeUsuario = new IdentityUser() { UserName = usuario.NomeUsuario, Email = usuario.EmailUsuario };
+            var resultado = await _userManager.CreateAsync(identidadeUsuario, usuario.SenhaUsuario);
 
             if(!resultado.Succeeded)
             {
