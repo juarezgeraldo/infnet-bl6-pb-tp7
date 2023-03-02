@@ -9,11 +9,11 @@
 
 ## Trabalho realizado pelo Grupo composto por:
 >Carolina Alves da Rocha Silva 
-<img style="border-radius: 50%;" src="https://avatars.githubusercontent.com/u/52006892?v=4" width="100px;"/>
-carolasilva99@gmail.com <br>
-carolina.rsilva@al.infnet.edu.br
-<.br>
+><img style="border-radius: 50%;" src="https://avatars.githubusercontent.com/u/52006892?v=4" width="100px;"/>
+>carolasilva99@gmail.com <br>
+>carolina.rsilva@al.infnet.edu.br
+
 >Juarez Geraldo da Silva Junior
-<img style="border-radius: 50%;" src="https://avatars.githubusercontent.com/u/59578227?v=4" width="100px;"/>
-juarezgeraldosilva@gmail.com.br <br>
-juarez.junior@al.infnet.edu.br
+><img style="border-radius: 50%;" src="https://avatars.githubusercontent.com/u/59578227?v=4" width="100px;"/>
+>juarezgeraldosilva@gmail.com.br <br>
+>juarez.junior@al.infnet.edu.br
