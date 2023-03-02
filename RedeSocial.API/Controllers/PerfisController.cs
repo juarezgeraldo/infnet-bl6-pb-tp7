@@ -1,10 +1,12 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using RedeSocial.API.Data;
-using RedeSocial.API.Models;
+using RedeSocial.BLL.Models;
+using RedeSocial.DAL.Data;
 
 namespace RedeSocial.API.Controllers
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class PerfisController : ControllerBase

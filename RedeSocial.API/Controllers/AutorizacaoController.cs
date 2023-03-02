@@ -1,10 +1,11 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using RedeSocial.API.Configuration;
-using RedeSocial.API.Model;
+using RedeSocial.BLL.Models;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -16,14 +17,20 @@ namespace RedeSocial.API.Controllers
     public class AutorizacaoController : ControllerBase
     {
         private readonly JwtBearerTokenSettings _jwtTokenSettings;
-        private readonly UserManager<IdentityUser> _userManager;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-        public AutorizacaoController(IOptions<JwtBearerTokenSettings> jwtTokenOptions, UserManager<IdentityUser> userManager)
+        public AutorizacaoController(IOptions<JwtBearerTokenSettings> jwtTokenOptions, UserManager<ApplicationUser> userManager)
         {
             this._jwtTokenSettings = jwtTokenOptions.Value;
             this._userManager = userManager;
         }
 
+        [HttpGet]
+        [Route("Listar")]
+        public async Task<ActionResult<List<ApplicationUser>>> Listar()
+        {
+            return await _userManager.Users.ToListAsync();
+        }
         [HttpPost]
         [Route("Registrar")]
         public async Task<IActionResult> Registrar([FromBody] Usuario usuario)
@@ -33,7 +40,13 @@ namespace RedeSocial.API.Controllers
                 return new BadRequestObjectResult(new { Mensagem = "Registro do Usuário não efetuado." });
             }
 
-            var identidadeUsuario = new IdentityUser() { UserName = usuario.NomeUsuario, Email = usuario.EmailUsuario };
+            var identidadeUsuario = new ApplicationUser() { 
+                UserName = usuario.NomeUsuario, 
+                Email = usuario.EmailUsuario,
+                NomeCompleto = usuario.NomeCompletoUsuario,
+                PhoneNumber = usuario.TelefoneUsuario,
+                PerfilId = usuario.PerfilId};
+
             var resultado = await _userManager.CreateAsync(identidadeUsuario, usuario.SenhaUsuario);
 
             if(!resultado.Succeeded)
@@ -51,7 +64,7 @@ namespace RedeSocial.API.Controllers
         [Route("Login")]
         public async Task<IActionResult> Login([FromBody] CredencialLogin credencialLogin)
         {
-            IdentityUser identidadeUsuario;
+            ApplicationUser identidadeUsuario;
 
             if (!ModelState.IsValid || 
                 credencialLogin == null || 
@@ -65,7 +78,7 @@ namespace RedeSocial.API.Controllers
             return Ok(new { Token = token, Mensagem = "Login do Usuário realizado com sucesso." });
         }
 
-        private object GerarToken(IdentityUser identityUser)
+        private object GerarToken(ApplicationUser applicationUser)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.ASCII.GetBytes(_jwtTokenSettings.SecretKey);
@@ -73,8 +86,8 @@ namespace RedeSocial.API.Controllers
             {
                 Subject = new ClaimsIdentity(new Claim[]
                 {
-                    new Claim(ClaimTypes.Name, identityUser.UserName.ToString()),
-                    new Claim(ClaimTypes.Email, identityUser.Email)
+                    new Claim(ClaimTypes.Name, applicationUser.UserName.ToString()),
+                    new Claim(ClaimTypes.Email, applicationUser.Email)
                 }),
                 Expires = DateTime.UtcNow.AddSeconds(_jwtTokenSettings.ExpiryTimeInSeconds),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature),
@@ -85,7 +98,7 @@ namespace RedeSocial.API.Controllers
             return tokenHandler.WriteToken(token);
         }
 
-        private async Task<IdentityUser> ValidarUsuario(CredencialLogin credencialLogin)
+        private async Task<ApplicationUser> ValidarUsuario(CredencialLogin credencialLogin)
         {
             var identidadeUsuario = await _userManager.FindByNameAsync(credencialLogin.NomeUsuario);
             if (identidadeUsuario != null)
@@ -97,6 +110,13 @@ namespace RedeSocial.API.Controllers
                 return resultado == PasswordVerificationResult.Failed ? null : identidadeUsuario;
             }
             return null;
+        }
+
+        [HttpPost]
+        [Route("Logout")]
+        public async Task<IActionResult> Logout()
+        {
+            return Ok(new { Token = "", Message = "Logged Out" });
         }
     }
 }

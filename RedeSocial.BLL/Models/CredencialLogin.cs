@@ -1,4 +1,4 @@
-﻿namespace RedeSocial.API.Model
+﻿namespace RedeSocial.BLL.Models
 {
     public class CredencialLogin
     {

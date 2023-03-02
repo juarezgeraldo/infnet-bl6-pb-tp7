@@ -1,7 +1,7 @@
-﻿using RedeSocial.API.Models;
+﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 
-namespace RedeSocial.API.Model
+namespace RedeSocial.BLL.Models
 {
     public class Usuario
     {
@@ -13,6 +13,9 @@ namespace RedeSocial.API.Model
         public string EmailUsuario { get; set;}
         public string TelefoneUsuario { get; set;}
         [Required]
-        public Perfil Perfil { get; set;}
+        public string NomeCompletoUsuario { get; set;}
+        [Required]
+        public int PerfilId { get; set;}
+
     }
 }
