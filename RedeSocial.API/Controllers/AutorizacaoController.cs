@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using NuGet.Common;
 using RedeSocial.API.Configuration;
 using RedeSocial.BLL.Models;
 using System.IdentityModel.Tokens.Jwt;
@@ -117,6 +118,45 @@ namespace RedeSocial.API.Controllers
         public async Task<IActionResult> Logout()
         {
             return Ok(new { Token = "", Message = "Logged Out" });
+        }
+
+        [HttpDelete]
+        [Route("Excluir")]
+        public async Task<IActionResult> Excluir(string emailUsuario)
+        {
+            if (!ModelState.IsValid || emailUsuario == null)
+            {
+                return new BadRequestObjectResult(new { Mensagem = "Exclusão do Usuário não efetuada." });
+            }
+
+            Task<ApplicationUser> applicationUser = BuscarUsuario(emailUsuario);
+
+            if (applicationUser == null)
+            {
+                return new BadRequestObjectResult(new { Mensagem = "Exclusão do Usuário não efetuada." });
+            }
+
+            var resultado = await _userManager.DeleteAsync(applicationUser.Result);
+
+            if (!resultado.Succeeded)
+            {
+                var dicionario = new ModelStateDictionary();
+                foreach (IdentityError erro in resultado.Errors)
+                {
+                    dicionario.AddModelError(erro.Code, erro.Description);
+                }
+                return new BadRequestObjectResult(new { Mensagem = "Não foi possível Excluir Usuario.", Erros = dicionario });
+            }
+            return Ok(new { Mensagem = "Usuário excluído com sucesso." });
+
+        }
+
+        private async Task<ApplicationUser> BuscarUsuario(string emailUsuario)
+        {
+            Task<ApplicationUser> applicationUser = _userManager.FindByEmailAsync(emailUsuario);
+
+            return await applicationUser;
+
         }
     }
 }

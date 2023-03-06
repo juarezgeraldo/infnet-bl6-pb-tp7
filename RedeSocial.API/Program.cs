@@ -32,6 +32,11 @@ builder.Services.Configure<JwtBearerTokenSettings>(jwtSection);
 var jwtBearerTokenSettings = jwtSection.Get<JwtBearerTokenSettings>();
 var key = Encoding.ASCII.GetBytes(jwtBearerTokenSettings.SecretKey);
 
+builder.Services.Configure<IdentityOptions>(options =>
+{
+    // Default Lockout settings.
+    options.User.RequireUniqueEmail = true;
+});
 // Add Authentication
 builder.Services.AddAuthentication(options =>
 {
