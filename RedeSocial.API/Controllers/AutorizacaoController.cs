@@ -26,8 +26,8 @@ namespace RedeSocial.API.Controllers
         }
 
         [HttpGet]
-        [Route("Listar")]
-        public async Task<ActionResult<List<ApplicationUser>>> Listar()
+        [Route("Login")]
+        public async Task<ActionResult<List<ApplicationUser>>> Login()
         {
             return await _userManager.Users.ToListAsync();
         }
@@ -51,12 +51,7 @@ namespace RedeSocial.API.Controllers
 
             if(!resultado.Succeeded)
             {
-                var dicionario = new ModelStateDictionary();
-                foreach (IdentityError erro in resultado.Errors)
-                {
-                    dicionario.AddModelError(erro.Code, erro.Description);
-                }
-                return new BadRequestObjectResult(new {Mensagem = "Não foi possível registrar Usuario.", Erros = dicionario });
+                return new BadRequestObjectResult(new {Mensagem = "Não foi possível registrar Usuario.", Erros = resultado.Errors });
             }
             return Ok(new { Mensagem = "Registro do Usuario concluído com sucesso." });
         }
