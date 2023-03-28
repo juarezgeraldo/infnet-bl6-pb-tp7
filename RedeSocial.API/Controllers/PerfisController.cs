@@ -22,7 +22,6 @@ namespace RedeSocial.API.Controllers
         {
             return await _context.Perfis.ToListAsync();
         }
-
         [HttpGet("{id}")]
         public async Task<ActionResult<Perfil>> GetPerfil(int id)
         {
