@@ -1,12 +1,15 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using NuGet.Common;
 using RedeSocial.API.Configuration;
 using RedeSocial.BLL.Models;
 using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
 using System.Security.Claims;
 using System.Text;
 
@@ -25,12 +28,22 @@ namespace RedeSocial.API.Controllers
             this._userManager = userManager;
         }
 
-        [HttpGet]
-        [Route("Login")]
-        public async Task<ActionResult<List<ApplicationUser>>> Login()
+        [HttpPost]
+        [Route("AlterarSenha")]
+        public async Task<ActionResult<string>> AlterarSenha([FromBody] CredencialLogin credencialLogin)
         {
-            return await _userManager.Users.ToListAsync();
+            var identidadeUsuario = await _userManager.FindByNameAsync(credencialLogin.NomeUsuario);
+
+            if (identidadeUsuario != null)
+            {
+
+                identidadeUsuario.PasswordHash = _userManager.PasswordHasher.HashPassword(identidadeUsuario, credencialLogin.SenhaUsuario);
+                var resultado = await _userManager.UpdateAsync(identidadeUsuario);
+                return credencialLogin.NomeUsuario;
+            }
+            return null;
         }
+
         [HttpPost]
         [Route("Registrar")]
         public async Task<IActionResult> Registrar([FromBody] Usuario usuario)
@@ -51,8 +64,14 @@ namespace RedeSocial.API.Controllers
 
             if(!resultado.Succeeded)
             {
-                return new BadRequestObjectResult(new {Mensagem = "Não foi possível registrar Usuario.", Erros = resultado.Errors });
+                var dicionario = new ModelStateDictionary();
+                foreach (IdentityError erro in resultado.Errors)
+                {
+                    dicionario.AddModelError(erro.Code, erro.Description);
+                }
+                return new BadRequestObjectResult(new { Mensagem = "Não foi possível registrar Usuario.", Erros = dicionario });
             }
+
             return Ok(new { Mensagem = "Registro do Usuario concluído com sucesso." });
         }
         [HttpPost]
@@ -65,12 +84,29 @@ namespace RedeSocial.API.Controllers
                 credencialLogin == null || 
                 (identidadeUsuario = await ValidarUsuario(credencialLogin)) == null)
             {
-                return new BadRequestObjectResult(new { Mensagem = "Não foi possível realizar o login do Usuaário." });
+                return new BadRequestObjectResult(new { Mensagem = "Não foi possível realizar o login do Usuário." });
             }
 
             var token = GerarToken(identidadeUsuario);
 
-            return Ok(new { Token = token, Mensagem = "Login do Usuário realizado com sucesso." });
+            return Ok(new { Token = token, nomeUsuario = credencialLogin.NomeUsuario, Mensagem = "Login do Usuário realizado com sucesso." });
+        }
+        [HttpGet]
+        [Route("GetUsuario")]
+        public async Task<ActionResult<Usuario>> GetUsuario(string nomeUsuario)
+        {
+            var identidadeUsuario = await _userManager.FindByNameAsync(nomeUsuario);
+            if (identidadeUsuario != null)
+            {
+                var usuario = new Usuario();
+                usuario.NomeUsuario = identidadeUsuario.UserName;
+                usuario.EmailUsuario = identidadeUsuario.Email;
+                usuario.TelefoneUsuario = identidadeUsuario.PhoneNumber;
+                usuario.NomeCompletoUsuario = identidadeUsuario.NomeCompleto;
+
+                return usuario;
+            }
+            return null;
         }
 
         private object GerarToken(ApplicationUser applicationUser)
@@ -90,6 +126,7 @@ namespace RedeSocial.API.Controllers
                 Issuer = _jwtTokenSettings.Issuer
             };
             var token = tokenHandler.CreateToken(tokenDescriptor);
+
             return tokenHandler.WriteToken(token);
         }
 
@@ -108,10 +145,74 @@ namespace RedeSocial.API.Controllers
         }
 
         [HttpPost]
+        [Route("AlteraPerfil")]
+        [Authorize]
+        public async Task<IActionResult> AlteraPerfil(int perfil, string token)
+        {
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var decodedValue = tokenHandler.ReadJwtToken(token);
+            var nomeUsuario = decodedValue.Claims.First(c => c.Type == "name").Value;
+
+            var identidadeUsuario = await _userManager.FindByNameAsync(nomeUsuario);
+            if (identidadeUsuario != null)
+            {
+                identidadeUsuario.PerfilId = perfil;
+
+                var resultado = await _userManager.UpdateAsync(identidadeUsuario);
+
+                if (!resultado.Succeeded)
+                {
+                    return new BadRequestObjectResult(new { Mensagem = "Não foi possível altualizar Perfil.", Erros = resultado.Errors });
+                }
+            }
+            return Ok(new { Mensagem = "Perfil do Usuario atualizado com sucesso." });
+        }
+
+
+        [HttpPost]
         [Route("Logout")]
         public async Task<IActionResult> Logout()
         {
             return Ok(new { Token = "", Message = "Logged Out" });
+        }
+
+        [HttpDelete]
+        [Route("Excluir")]
+        public async Task<IActionResult> Excluir(string emailUsuario)
+        {
+            if (!ModelState.IsValid || emailUsuario == null)
+            {
+                return new BadRequestObjectResult(new { Mensagem = "Exclusão do Usuário não efetuada." });
+            }
+
+            Task<ApplicationUser> applicationUser = BuscarUsuario(emailUsuario);
+
+            if (applicationUser == null)
+            {
+                return new BadRequestObjectResult(new { Mensagem = "Exclusão do Usuário não efetuada." });
+            }
+
+            var resultado = await _userManager.DeleteAsync(applicationUser.Result);
+
+            if (!resultado.Succeeded)
+            {
+                var dicionario = new ModelStateDictionary();
+                foreach (IdentityError erro in resultado.Errors)
+                {
+                    dicionario.AddModelError(erro.Code, erro.Description);
+                }
+                return new BadRequestObjectResult(new { Mensagem = "Não foi possível Excluir Usuario.", Erros = dicionario });
+            }
+            return Ok(new { Mensagem = "Usuário excluído com sucesso." });
+
+        }
+
+        private async Task<ApplicationUser> BuscarUsuario(string emailUsuario)
+        {
+            Task<ApplicationUser> applicationUser = _userManager.FindByEmailAsync(emailUsuario);
+
+            return await applicationUser;
+
         }
     }
 }

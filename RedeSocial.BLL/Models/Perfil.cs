@@ -1,6 +1,4 @@
-﻿using Microsoft.AspNetCore.Identity;
-
-namespace RedeSocial.BLL.Models
+﻿namespace RedeSocial.BLL.Models
 {
     public class Perfil
     {
