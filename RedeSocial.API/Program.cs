@@ -17,8 +17,12 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddDbContext<ApplicationDbContext>(options => 
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DatabaseConnection")));
+//builder.Services.AddDbContext<ApplicationDbContext>(options => 
+//    options.UseSqlServer(builder.Configuration.GetConnectionString("DatabaseConnection")));
+
+var connectionString = builder.Configuration.GetConnectionString("DatabaseConnection");
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+    options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
 
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options => 
     options.SignIn.RequireConfirmedAccount = true)
