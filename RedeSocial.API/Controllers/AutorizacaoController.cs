@@ -64,8 +64,14 @@ namespace RedeSocial.API.Controllers
 
             if(!resultado.Succeeded)
             {
-                return new BadRequestObjectResult(new {Mensagem = "Não foi possível registrar Usuario.", Erros = resultado.Errors });
+                var dicionario = new ModelStateDictionary();
+                foreach (IdentityError erro in resultado.Errors)
+                {
+                    dicionario.AddModelError(erro.Code, erro.Description);
+                }
+                return new BadRequestObjectResult(new { Mensagem = "Não foi possível registrar Usuario.", Erros = dicionario });
             }
+
             return Ok(new { Mensagem = "Registro do Usuario concluído com sucesso." });
         }
         [HttpPost]
