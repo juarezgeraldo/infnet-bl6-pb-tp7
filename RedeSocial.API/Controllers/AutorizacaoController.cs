@@ -8,6 +8,7 @@ using Microsoft.IdentityModel.Tokens;
 using NuGet.Common;
 using RedeSocial.API.Configuration;
 using RedeSocial.BLL.Models;
+using RedeSocial.DAL.Data;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
@@ -21,11 +22,15 @@ namespace RedeSocial.API.Controllers
     {
         private readonly JwtBearerTokenSettings _jwtTokenSettings;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly ApplicationDbContext _context;
 
-        public AutorizacaoController(IOptions<JwtBearerTokenSettings> jwtTokenOptions, UserManager<ApplicationUser> userManager)
+
+        public AutorizacaoController(IOptions<JwtBearerTokenSettings> jwtTokenOptions, UserManager<ApplicationUser> userManager, ApplicationDbContext context)
         {
             this._jwtTokenSettings = jwtTokenOptions.Value;
             this._userManager = userManager;
+            _context = context;
+
         }
 
         [HttpPost]
@@ -58,7 +63,7 @@ namespace RedeSocial.API.Controllers
                 Email = usuario.EmailUsuario,
                 NomeCompleto = usuario.NomeCompletoUsuario,
                 PhoneNumber = usuario.TelefoneUsuario,
-                PerfilId = usuario.PerfilId};
+                PerfilId = usuario.Perfil.PerfilId};
 
             var resultado = await _userManager.CreateAsync(identidadeUsuario, usuario.SenhaUsuario);
 
@@ -98,7 +103,7 @@ namespace RedeSocial.API.Controllers
                 usuario.EmailUsuario = identidadeUsuario.Email;
                 usuario.TelefoneUsuario = identidadeUsuario.PhoneNumber;
                 usuario.NomeCompletoUsuario = identidadeUsuario.NomeCompleto;
-                usuario.PerfilId = identidadeUsuario.PerfilId;
+                usuario.Perfil = await _context.Perfis.FindAsync(identidadeUsuario.PerfilId);
 
                 return usuario;
             }
