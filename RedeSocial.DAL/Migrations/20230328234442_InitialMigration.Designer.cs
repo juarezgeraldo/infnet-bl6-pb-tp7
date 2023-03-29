@@ -11,8 +11,8 @@ using RedeSocial.DAL.Data;
 namespace RedeSocial.DAL.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20230325191244_Midia")]
-    partial class Midia
+    [Migration("20230328234442_InitialMigration")]
+    partial class InitialMigration
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {

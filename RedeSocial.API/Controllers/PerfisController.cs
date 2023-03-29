@@ -6,7 +6,6 @@ using RedeSocial.DAL.Data;
 
 namespace RedeSocial.API.Controllers
 {
-    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class PerfisController : ControllerBase

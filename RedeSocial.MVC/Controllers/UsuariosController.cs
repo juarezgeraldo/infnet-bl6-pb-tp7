@@ -9,6 +9,7 @@ using NuGet.Common;
 using RedeSocial.BLL.Models;
 using static System.Net.WebRequestMethods;
 using RedeSocial.MVC.Models;
+using RedeSocial.MVC.Helpers;
 
 namespace RedeSocial.MVC.Controllers
 {
@@ -35,6 +36,9 @@ namespace RedeSocial.MVC.Controllers
                         .PostJsonAsync(login)
                         .ReceiveJson<TokenModel>();
 
+                    HttpContext.Response.Cookies.Append(" ", response.Token,
+                        new Microsoft.AspNetCore.Http.CookieOptions { Expires = DateTime.Now.AddMinutes(10) });
+
                     var claims = new List<Claim>
                     {
                         new Claim(ClaimTypes.Name, login.NomeUsuario)
@@ -46,25 +50,8 @@ namespace RedeSocial.MVC.Controllers
                     var authProperties = new AuthenticationProperties
                     {
                         AllowRefresh = true,
-                        // Refreshing the authentication session should be allowed.
-
                         ExpiresUtc = DateTimeOffset.UtcNow.AddMinutes(10),
-                        // The time at which the authentication ticket expires. A 
-                        // value set here overrides the ExpireTimeSpan option of 
-                        // CookieAuthenticationOptions set with AddCookie.
-
                         IsPersistent = true,
-                        // Whether the authentication session is persisted across 
-                        // multiple requests. When used with cookies, controls
-                        // whether the cookie's lifetime is absolute (matching the
-                        // lifetime of the authentication ticket) or session-based.
-
-                        //IssuedUtc = <DateTimeOffset>,
-                        // The time at which the authentication ticket was issued.
-
-                        //RedirectUri = <string>
-                        // The full path or absolute URI to be used as an http 
-                        // redirect response value.
                     };
 
                     await HttpContext.SignInAsync(
@@ -94,17 +81,31 @@ namespace RedeSocial.MVC.Controllers
 
         [Authorize]
         // GET: UsuariosController/Detalhes/5
-        public IActionResult Detalhes(int id)
+        public async Task<IActionResult> Detalhes()
         {
-            return View();
-        }
+            var nomeUsuario = User.Identity.GetName();
 
+            var usuario = await "https://localhost:7200/api/Autorizacao/GetUsuario"
+                .SetQueryParam("nomeUsuario", nomeUsuario)
+                .GetJsonAsync<Usuario>();
+
+            return View(usuario);
+        }
+        public async Task<IActionResult> Adicionar(AdicionarUsuarioViewModel adicionarUsuarioViewModel)
+        {
+            adicionarUsuarioViewModel.Perfis = await BuscarPerfis();
+
+            return View(adicionarUsuarioViewModel);
+        }
 
         // POST: UsuariosController/Adicionar
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Adicionar([Bind("NomeUsuario,SenhaUsuario,EmailUsuario,TelefoneUsuario,NomeCompletoUsuario,PerfilId")] Usuario usuario)
         {
+            var adicionarUsuarioViewModel = new AdicionarUsuarioViewModel();
+            adicionarUsuarioViewModel.Usuario = usuario;
+
             if (ModelState.IsValid)
             {
                 try
@@ -125,7 +126,7 @@ namespace RedeSocial.MVC.Controllers
 
                     foreach (var erro in error.Erros)
                     {
-                        if (erro.Code.Contains(nameof(usuario.NomeUsuario)))
+                        if (erro.Code.ToLowerInvariant().Contains("Username"))
                         {
                             ModelState.AddModelError(nameof(usuario.NomeUsuario), erro.Description);
                         }
@@ -133,7 +134,7 @@ namespace RedeSocial.MVC.Controllers
                         {
                             ModelState.AddModelError(nameof(usuario.SenhaUsuario), erro.Description);
                         }
-                        else if (erro.Code.Contains(nameof(usuario.EmailUsuario)))
+                        else if (erro.Code.ToLowerInvariant().Contains("Email"))
                         {
                             ModelState.AddModelError(nameof(usuario.EmailUsuario), erro.Description);
                         }
@@ -148,12 +149,55 @@ namespace RedeSocial.MVC.Controllers
                     }
 
                     ViewBag.ErrorMessage = error.Mensagem;
-
-                    return View(usuario);
+                    adicionarUsuarioViewModel.Perfis = await BuscarPerfis();
+                    return View(adicionarUsuarioViewModel);
                 }
             }
 
-            return View(usuario);
+            return View(adicionarUsuarioViewModel);
+        }
+
+        public async Task<IActionResult> RecuperarSenha()
+        {
+            return View();
+        }
+
+        // POST: UsuariosController/RecuperarSenha
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> RecuperarSenha([Bind("NomeUsuario,SenhaUsuario")] CredencialLogin credenciais)
+        {
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    var response = await "https://localhost:7200/api/Autorizacao/AlterarSenha"
+                        .PostJsonAsync(credenciais);
+
+                    return RedirectToAction(nameof(Login));
+                }
+                catch (FlurlHttpException ex)
+                {
+                    var error = await ex.GetResponseJsonAsync<AlterarSenhaErroViewModel>();
+
+                    if (error == null)
+                    {
+                        return View();
+                    }
+
+                    
+                    ViewBag.ErrorMessage = error.Mensagem;
+                    return View();
+                }
+            }
+
+            return View();
+        }
+
+        private static async Task<IEnumerable<Perfil>> BuscarPerfis()
+        {
+            return await "https://localhost:7200/api/Perfis"
+                .GetJsonAsync<IEnumerable<Perfil>>();
         }
 
         // GET: UsuariosController
@@ -188,5 +232,46 @@ namespace RedeSocial.MVC.Controllers
                 return View();
             }
         }
+
+        public async Task<IActionResult> AlterarPerfil(AlterarPerfilViewModel alterarPerfilViewModel)
+        {
+            alterarPerfilViewModel.Perfis = await BuscarPerfis();
+
+            return View(alterarPerfilViewModel);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AlterarPerfil([Bind("PerfilId")] AlterarPerfilDto alterarPerfil)
+        {
+            var alterarPerfilViewModel = new AlterarPerfilViewModel();
+
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    var response = await "https://localhost:7200/api/Autorizacao/AlteraPerfil"
+                        .PostJsonAsync(alterarPerfil);
+
+                    return RedirectToAction(nameof(Detalhes));
+                }
+                catch (FlurlHttpException ex)
+                {
+                    var error = await ex.GetResponseJsonAsync<AlterarSenhaErroViewModel>();
+
+                    if (error == null)
+                    {
+                        return View();
+                    }
+
+                    ViewBag.ErrorMessage = error.Mensagem;
+                    alterarPerfilViewModel.Perfis = await BuscarPerfis();
+                    return View(alterarPerfilViewModel);
+                }
+            }
+
+            return View(alterarPerfilViewModel);
+        }
+
     }
 }

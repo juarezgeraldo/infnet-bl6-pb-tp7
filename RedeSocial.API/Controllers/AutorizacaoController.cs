@@ -30,7 +30,7 @@ namespace RedeSocial.API.Controllers
 
         [HttpPost]
         [Route("AlterarSenha")]
-        public async Task<ActionResult<string>> AlterarSenha([FromBody] CredencialLogin credencialLogin)
+        public async Task<ActionResult> AlterarSenha([FromBody] CredencialLogin credencialLogin)
         {
             var identidadeUsuario = await _userManager.FindByNameAsync(credencialLogin.NomeUsuario);
 
@@ -39,9 +39,9 @@ namespace RedeSocial.API.Controllers
 
                 identidadeUsuario.PasswordHash = _userManager.PasswordHasher.HashPassword(identidadeUsuario, credencialLogin.SenhaUsuario);
                 var resultado = await _userManager.UpdateAsync(identidadeUsuario);
-                return credencialLogin.NomeUsuario;
+                return NoContent();
             }
-            return null;
+            return BadRequest(new BadRequestObjectResult(new { Mensagem = "Usuário inválido." }));
         }
 
         [HttpPost]
@@ -62,14 +62,9 @@ namespace RedeSocial.API.Controllers
 
             var resultado = await _userManager.CreateAsync(identidadeUsuario, usuario.SenhaUsuario);
 
-            if(!resultado.Succeeded)
+            if (!resultado.Succeeded)
             {
-                var dicionario = new ModelStateDictionary();
-                foreach (IdentityError erro in resultado.Errors)
-                {
-                    dicionario.AddModelError(erro.Code, erro.Description);
-                }
-                return new BadRequestObjectResult(new { Mensagem = "Não foi possível registrar Usuario.", Erros = dicionario });
+                return new BadRequestObjectResult(new { Mensagem = "Não foi possível registrar Usuario.", Erros = resultado.Errors });
             }
 
             return Ok(new { Mensagem = "Registro do Usuario concluído com sucesso." });
@@ -103,6 +98,7 @@ namespace RedeSocial.API.Controllers
                 usuario.EmailUsuario = identidadeUsuario.Email;
                 usuario.TelefoneUsuario = identidadeUsuario.PhoneNumber;
                 usuario.NomeCompletoUsuario = identidadeUsuario.NomeCompleto;
+                usuario.PerfilId = identidadeUsuario.PerfilId;
 
                 return usuario;
             }
@@ -147,16 +143,17 @@ namespace RedeSocial.API.Controllers
         [HttpPost]
         [Route("AlteraPerfil")]
         [Authorize]
-        public async Task<IActionResult> AlteraPerfil(int perfil, string token)
+        public async Task<IActionResult> AlteraPerfil([FromBody] AlterarPerfilDto perfilId)
         {
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var decodedValue = tokenHandler.ReadJwtToken(token);
-            var nomeUsuario = decodedValue.Claims.First(c => c.Type == "name").Value;
+            var nomeUsuario = User.Identity.Name;
+            //var tokenHandler = new JwtSecurityTokenHandler();
+            //var decodedValue = tokenHandler.ReadJwtToken(token);
+            //var nomeUsuario = decodedValue.Claims.First(c => c.Type == "name").Value;
 
             var identidadeUsuario = await _userManager.FindByNameAsync(nomeUsuario);
             if (identidadeUsuario != null)
             {
-                identidadeUsuario.PerfilId = perfil;
+                identidadeUsuario.PerfilId = perfilId.PerfilId;
 
                 var resultado = await _userManager.UpdateAsync(identidadeUsuario);
 

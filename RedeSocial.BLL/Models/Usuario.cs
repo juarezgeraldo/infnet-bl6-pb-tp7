@@ -16,6 +16,5 @@ namespace RedeSocial.BLL.Models
         public string NomeCompletoUsuario { get; set;}
         [Required]
         public int PerfilId { get; set;}
-
     }
 }
