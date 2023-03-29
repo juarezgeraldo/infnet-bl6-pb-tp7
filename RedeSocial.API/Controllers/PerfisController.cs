@@ -36,7 +36,7 @@ namespace RedeSocial.API.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> PutPerfil(int id, Perfil perfil)
         {
-            if (id != perfil.Id)
+            if (id != perfil.PerfilId)
             {
                 return BadRequest();
             }
@@ -65,7 +65,7 @@ namespace RedeSocial.API.Controllers
             _context.Perfis.Add(perfil);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetPerfil", new { id = perfil.Id }, perfil);
+            return CreatedAtAction("GetPerfil", new { id = perfil.PerfilId }, perfil);
         }
 
         [HttpDelete("{id}")]
@@ -85,7 +85,7 @@ namespace RedeSocial.API.Controllers
 
         private bool PerfilExists(int id)
         {
-            return _context.Perfis.Any(e => e.Id == id);
+            return _context.Perfis.Any(e => e.PerfilId == id);
         }
     }
 }
