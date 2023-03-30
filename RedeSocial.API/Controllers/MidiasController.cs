@@ -1,10 +1,17 @@
 ﻿using AzureBlobs;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using RedeSocial.API.DTOs;
 using RedeSocial.BLL.Models;
 using RedeSocial.DAL.Data;
+
+public enum PerfilEnum
+{
+    Público = 1,
+    Privado = 2
+}
 
 namespace RedeSocial.API.Controllers
 {
@@ -14,16 +21,44 @@ namespace RedeSocial.API.Controllers
     {
         private readonly ApplicationDbContext _context;
         private BlobService _blobService;
-        public MidiasController(ApplicationDbContext context)
+        private readonly UserManager<ApplicationUser> _userManager;
+        public MidiasController(ApplicationDbContext context, UserManager<ApplicationUser> userManager)
         {
             _context = context;
             _blobService = new BlobService();
+            _userManager = userManager;
         }
 
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Midia>>> GetMidias()
         {
-            return await _context.Midias.ToListAsync();
+            var midias = new List<Midia>();
+            await using (var context = _context)
+            {
+                var innerJoin = from m in context.Midias
+                                join u in context.Users on m.NomeUsuario equals u.UserName
+                                select new
+                                {
+                                    m.NomeUsuario,
+                                    m.Titulo,
+                                    m.EnderecoBlob,
+                                    u.PerfilId
+                                };
+                foreach (var inner in innerJoin)
+                {
+                    if (inner.PerfilId == (int) PerfilEnum.Público)
+                    {
+                        var midia = new Midia()
+                        {
+                            NomeUsuario = inner.NomeUsuario,
+                            Titulo = inner.Titulo,
+                            EnderecoBlob = inner.EnderecoBlob,
+                        };
+                        midias.Add(midia);
+                    }
+                }
+            }
+            return midias;
         }
 
         [HttpGet("{id}")]
@@ -90,6 +125,7 @@ namespace RedeSocial.API.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize]
         public async Task<IActionResult> DeleteMidia(int id)
         {
             var midia = await _context.Midias.FindAsync(id);

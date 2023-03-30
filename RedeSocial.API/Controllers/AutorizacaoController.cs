@@ -152,9 +152,6 @@ namespace RedeSocial.API.Controllers
         public async Task<IActionResult> AlteraPerfil([FromBody] AlterarPerfilDto perfilId)
         {
             var nomeUsuario = User.Identity.Name;
-            //var tokenHandler = new JwtSecurityTokenHandler();
-            //var decodedValue = tokenHandler.ReadJwtToken(token);
-            //var nomeUsuario = decodedValue.Claims.First(c => c.Type == "name").Value;
 
             var identidadeUsuario = await _userManager.FindByNameAsync(nomeUsuario);
             if (identidadeUsuario != null)
