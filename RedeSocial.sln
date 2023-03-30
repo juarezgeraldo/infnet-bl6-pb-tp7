@@ -9,10 +9,12 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RedeSocial.BLL", "RedeSocia
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RedeSocial.DAL", "RedeSocial.DAL\RedeSocial.DAL.csproj", "{7AB93E0E-5BB2-441B-8929-17F3C60ABC70}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RedeSocial.MVC", "RedeSocial.MVC\RedeSocial.MVC.csproj", "{5E30B2F7-CDF8-4944-913C-D77636A3FF27}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RedeSocial.MVC", "RedeSocial.MVC\RedeSocial.MVC.csproj", "{5E30B2F7-CDF8-4944-913C-D77636A3FF27}"
 	ProjectSection(ProjectDependencies) = postProject
 		{49CEAB1E-B907-4AE4-86B7-6243A2F13A98} = {49CEAB1E-B907-4AE4-86B7-6243A2F13A98}
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Blobs", "Blobs\Blobs.csproj", "{30AA42BA-CD04-411F-B648-B54C456A2C49}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -36,6 +38,10 @@ Global
 		{5E30B2F7-CDF8-4944-913C-D77636A3FF27}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5E30B2F7-CDF8-4944-913C-D77636A3FF27}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5E30B2F7-CDF8-4944-913C-D77636A3FF27}.Release|Any CPU.Build.0 = Release|Any CPU
+		{30AA42BA-CD04-411F-B648-B54C456A2C49}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{30AA42BA-CD04-411F-B648-B54C456A2C49}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{30AA42BA-CD04-411F-B648-B54C456A2C49}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{30AA42BA-CD04-411F-B648-B54C456A2C49}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

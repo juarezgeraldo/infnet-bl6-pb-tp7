@@ -1,20 +1,23 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using AzureBlobs;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using RedeSocial.API.DTOs;
 using RedeSocial.BLL.Models;
 using RedeSocial.DAL.Data;
 
 namespace RedeSocial.API.Controllers
 {
-    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class MidiasController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private BlobService _blobService;
         public MidiasController(ApplicationDbContext context)
         {
             _context = context;
+            _blobService = new BlobService();
         }
 
         [HttpGet]
@@ -70,12 +73,21 @@ namespace RedeSocial.API.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<Midia>> PostMidia(Midia midia)
+        [Authorize]
+        public async Task<ActionResult<Midia>> PostMidia(MidiaDto midia)
         {
-            _context.Midias.Add(midia);
+            var enderecoBlob = await _blobService.AdicionarBlobAoContainer(midia.Base64);
+            var midiaModel = new Midia()
+            {
+                EnderecoBlob = enderecoBlob,
+                NomeUsuario = User.Identity.Name,
+                Titulo = midia.Titulo
+            };
+
+            var midiaGerada = _context.Midias.Add(midiaModel);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetMidia", new { id = midia.Id }, midia);
+            return CreatedAtAction("GetMidia", new { id = midiaGerada.Entity.Id }, midiaGerada.Entity);
         }
 
         [HttpDelete("{id}")]
