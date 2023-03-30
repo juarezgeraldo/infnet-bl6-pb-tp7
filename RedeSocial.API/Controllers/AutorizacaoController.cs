@@ -63,7 +63,8 @@ namespace RedeSocial.API.Controllers
                 Email = usuario.EmailUsuario,
                 NomeCompleto = usuario.NomeCompletoUsuario,
                 PhoneNumber = usuario.TelefoneUsuario,
-                PerfilId = usuario.Perfil.PerfilId};
+                PerfilId = usuario.Perfil.PerfilId
+            };
 
             var resultado = await _userManager.CreateAsync(identidadeUsuario, usuario.SenhaUsuario);
 

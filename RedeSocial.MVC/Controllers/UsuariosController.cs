@@ -36,7 +36,7 @@ namespace RedeSocial.MVC.Controllers
                         .PostJsonAsync(login)
                         .ReceiveJson<TokenModel>();
 
-                    HttpContext.Response.Cookies.Append(" ", response.Token,
+                    HttpContext.Response.Cookies.Append("token", response.Token,
                         new Microsoft.AspNetCore.Http.CookieOptions { Expires = DateTime.Now.AddMinutes(10) });
 
                     var claims = new List<Claim>
@@ -83,14 +83,21 @@ namespace RedeSocial.MVC.Controllers
         // GET: UsuariosController/Detalhes/5
         public async Task<IActionResult> Detalhes()
         {
+            var usuario = await BuscarDetalhesUsuario();
+
+            return View(usuario);
+        }
+
+        private async Task<Usuario> BuscarDetalhesUsuario()
+        {
             var nomeUsuario = User.Identity.GetName();
 
             var usuario = await "https://localhost:7200/api/Autorizacao/GetUsuario"
                 .SetQueryParam("nomeUsuario", nomeUsuario)
                 .GetJsonAsync<Usuario>();
-
-            return View(usuario);
+            return usuario;
         }
+
         public async Task<IActionResult> Adicionar(AdicionarUsuarioViewModel adicionarUsuarioViewModel)
         {
             adicionarUsuarioViewModel.Perfis = await BuscarPerfis();
@@ -235,7 +242,13 @@ namespace RedeSocial.MVC.Controllers
 
         public async Task<IActionResult> AlterarPerfil(AlterarPerfilViewModel alterarPerfilViewModel)
         {
+            var usuario = await BuscarDetalhesUsuario();
+
             alterarPerfilViewModel.Perfis = await BuscarPerfis();
+            alterarPerfilViewModel.AlterarPerfil = new AlterarPerfilDto()
+            {
+                PerfilId = usuario.Perfil.PerfilId
+            };
 
             return View(alterarPerfilViewModel);
         }
@@ -251,21 +264,23 @@ namespace RedeSocial.MVC.Controllers
                 try
                 {
                     var response = await "https://localhost:7200/api/Autorizacao/AlteraPerfil"
+                        .WithOAuthBearerToken(Request.Cookies["token"])
                         .PostJsonAsync(alterarPerfil);
 
                     return RedirectToAction(nameof(Detalhes));
                 }
                 catch (FlurlHttpException ex)
                 {
+                    alterarPerfilViewModel.Perfis = await BuscarPerfis();
                     var error = await ex.GetResponseJsonAsync<AlterarSenhaErroViewModel>();
 
                     if (error == null)
                     {
-                        return View();
+                        return View(alterarPerfilViewModel);
                     }
 
                     ViewBag.ErrorMessage = error.Mensagem;
-                    alterarPerfilViewModel.Perfis = await BuscarPerfis();
+                    
                     return View(alterarPerfilViewModel);
                 }
             }
