@@ -25,6 +25,7 @@ namespace RedeSocial.API.Controllers
         {
             return await _context.Midias.ToListAsync();
         }
+
         [HttpGet("{id}")]
         public async Task<ActionResult<Midia>> GetMidia(int id)
         {
@@ -41,9 +42,7 @@ namespace RedeSocial.API.Controllers
         public async Task<ActionResult<List<Midia>>> ListarMidiaUsuario(string nomeUsuario)
         {
             var retorno = await _context.Midias.ToListAsync();
-
             return retorno.FindAll(x => x.NomeUsuario.Contains(nomeUsuario));
-
         }
 
         [HttpPut("{id}")]
