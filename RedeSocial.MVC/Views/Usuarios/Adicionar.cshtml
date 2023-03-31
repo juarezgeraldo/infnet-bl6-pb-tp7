@@ -6,7 +6,7 @@
 <h4>Usuário</h4>
 
 @{
-    if (ViewBag.ErrorMessage != null)
+    if (ViewBag != null && ViewBag.ErrorMessage != null)
     {
         <div class="alert alert-danger">
             <p>@ViewBag.ErrorMessage</p>
@@ -65,7 +65,7 @@
 </div>
 
 <div>
-    <a asp-action="Index">Back to List</a>
+    <a asp-action="Login">Já tenho usuário</a>
 </div>
 
 @section Scripts {

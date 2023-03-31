@@ -7,6 +7,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using NuGet.Common;
 using RedeSocial.API.Configuration;
+using RedeSocial.BLL.DTOs;
 using RedeSocial.BLL.Models;
 using RedeSocial.DAL.Data;
 using System.IdentityModel.Tokens.Jwt;
@@ -51,7 +52,7 @@ namespace RedeSocial.API.Controllers
 
         [HttpPost]
         [Route("Registrar")]
-        public async Task<IActionResult> Registrar([FromBody] Usuario usuario)
+        public async Task<IActionResult> Registrar([FromBody] UsuarioDto usuario)
         {
             if(!ModelState.IsValid || usuario == null)
             {
@@ -63,7 +64,7 @@ namespace RedeSocial.API.Controllers
                 Email = usuario.EmailUsuario,
                 NomeCompleto = usuario.NomeCompletoUsuario,
                 PhoneNumber = usuario.TelefoneUsuario,
-                PerfilId = usuario.Perfil.PerfilId
+                PerfilId = usuario.PerfilId
             };
 
             var resultado = await _userManager.CreateAsync(identidadeUsuario, usuario.SenhaUsuario);

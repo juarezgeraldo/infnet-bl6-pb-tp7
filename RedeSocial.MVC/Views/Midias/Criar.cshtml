@@ -1,0 +1,38 @@
+﻿@model RedeSocial.MVC.Models.AdicionarMidiaViewModel
+@{
+    ViewData["Title"] = "Postar Mídia";
+}
+
+<h1>Postar</h1>
+
+<h4>Midia</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Criar" enctype ="multipart/form-data" method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="Titulo" class="control-label"></label>
+                <input asp-for="Titulo" class="form-control" />
+                <span asp-validation-for="Titulo" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Arquivo.FormFile" class="control-label"></label>
+                <input asp-for="Arquivo.FormFile" class="form-control" type="file"/>
+                <span asp-validation-for="Arquivo.FormFile" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <input type="submit" value="Criar" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="MinhasMidias">Minhas Mídias</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

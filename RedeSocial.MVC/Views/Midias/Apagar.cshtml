@@ -1,0 +1,26 @@
+﻿@model RedeSocial.BLL.Models.Midia
+
+@{
+    ViewData["Title"] = "Apagar";
+}
+
+<h1>Apagar</h1>
+
+<h3>Você tem certeza que quer apagar essa mídia?</h3>
+<div>
+    <h4>Midia</h4>
+    <hr />
+    <div class="card" style="width: 18rem;">
+        <img src="@Model.EnderecoBlob" class="card-img-top" alt="@Model.Titulo">
+        <div class="card-body">
+            <h5 class="card-title">@Model.Titulo</h5>
+            <p>@Model.NomeUsuario</p>
+        </div>
+    </div>
+    
+    <form asp-action="Apagar">
+        <input type="hidden" asp-for="Id" />
+        <input type="submit" value="Apagar" class="btn btn-danger"/> |
+        <a asp-action="MinhasMidias">Voltar para as suas mídias</a>
+    </form>
+</div>

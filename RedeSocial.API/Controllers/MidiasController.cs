@@ -33,31 +33,21 @@ namespace RedeSocial.API.Controllers
         public async Task<ActionResult<IEnumerable<Midia>>> GetMidias()
         {
             var midias = new List<Midia>();
-            await using (var context = _context)
-            {
-                var innerJoin = from m in context.Midias
-                                join u in context.Users on m.NomeUsuario equals u.UserName
-                                select new
-                                {
-                                    m.NomeUsuario,
-                                    m.Titulo,
-                                    m.EnderecoBlob,
-                                    u.PerfilId
-                                };
-                foreach (var inner in innerJoin)
+            await using var context = _context;
+            var innerJoin = from m in context.Midias
+                join u in context.Users on m.NomeUsuario equals u.UserName
+                where u.PerfilId == (int) PerfilEnum.Público
+                select new
+                Midia()
                 {
-                    if (inner.PerfilId == (int) PerfilEnum.Público)
-                    {
-                        var midia = new Midia()
-                        {
-                            NomeUsuario = inner.NomeUsuario,
-                            Titulo = inner.Titulo,
-                            EnderecoBlob = inner.EnderecoBlob,
-                        };
-                        midias.Add(midia);
-                    }
-                }
-            }
+                    Titulo = m.Titulo,
+                    EnderecoBlob = m.EnderecoBlob,
+                    Id = m.Id,
+                    NomeUsuario = m.NomeUsuario
+                };
+
+            midias = innerJoin.ToList();
+
             return midias;
         }
 
@@ -76,8 +66,9 @@ namespace RedeSocial.API.Controllers
         [Route("ListarMidiaUsuario")]
         public async Task<ActionResult<List<Midia>>> ListarMidiaUsuario(string nomeUsuario)
         {
-            var retorno = await _context.Midias.ToListAsync();
-            return retorno.FindAll(x => x.NomeUsuario.Contains(nomeUsuario));
+            await using var context = _context;
+            var retorno = context.Midias.Where(m => m.NomeUsuario == nomeUsuario).ToList();
+            return retorno;
         }
 
         [HttpPut("{id}")]

@@ -1,0 +1,21 @@
+﻿@model IEnumerable<RedeSocial.BLL.Models.Midia>
+
+@{
+    ViewData["Title"] = "Mídias";
+}
+
+<h1>Mídias</h1>
+
+<p>
+    <a asp-action="Criar">Postar Nova Mídia</a>
+</p>
+@foreach (var midia in Model) {
+    <div class="card" style="width: 18rem;">
+        <img src="@midia.EnderecoBlob" class="card-img-top" alt="...">
+        <div class="card-body">
+            <h5 class="card-title">@midia.Titulo</h5>
+            <p>@midia.NomeUsuario</p>
+                <a asp-action="Apagar" asp-route-id="@midia.Id">Apagar Mídia</a>
+        </div>
+    </div>
+}

@@ -10,6 +10,7 @@ using RedeSocial.BLL.Models;
 using static System.Net.WebRequestMethods;
 using RedeSocial.MVC.Models;
 using RedeSocial.MVC.Helpers;
+using RedeSocial.BLL.DTOs;
 
 namespace RedeSocial.MVC.Controllers
 {
@@ -98,7 +99,7 @@ namespace RedeSocial.MVC.Controllers
             return usuario;
         }
 
-        public async Task<IActionResult> Adicionar(AdicionarUsuarioViewModel adicionarUsuarioViewModel)
+        public async Task<IActionResult>  Adicionar(AdicionarUsuarioViewModel adicionarUsuarioViewModel)
         {
             adicionarUsuarioViewModel.Perfis = await BuscarPerfis();
 
@@ -108,7 +109,7 @@ namespace RedeSocial.MVC.Controllers
         // POST: UsuariosController/Adicionar
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Adicionar([Bind("NomeUsuario,SenhaUsuario,EmailUsuario,TelefoneUsuario,NomeCompletoUsuario,PerfilId")] Usuario usuario)
+        public async Task<IActionResult> Adicionar(UsuarioDto usuario)
         {
             var adicionarUsuarioViewModel = new AdicionarUsuarioViewModel();
             adicionarUsuarioViewModel.Usuario = usuario;
@@ -223,7 +224,7 @@ namespace RedeSocial.MVC.Controllers
                 await HttpContext.SignOutAsync(
                     CookieAuthenticationDefaults.AuthenticationScheme);
 
-                return RedirectToAction(nameof(Login));
+                return RedirectToAction("Listar", "Midias");
             }
             catch (FlurlHttpException ex)
             {
