@@ -7,6 +7,11 @@
 <h1>Detalhes</h1>
 
 <div>
+    <p>Deseja alterar seu perfil?</p>
+    <a asp-action="AlterarPerfil">Alterar Perfil</a>
+</div>
+
+<div>
     <h4>Usuario</h4>
     <hr />
     <dl class="row">
@@ -15,12 +20,6 @@
         </dt>
         <dd class = "col-sm-10">
             @Html.DisplayFor(model => model.NomeUsuario)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.SenhaUsuario)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.SenhaUsuario)
         </dd>
         <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.EmailUsuario)
@@ -41,10 +40,10 @@
             @Html.DisplayFor(model => model.NomeCompletoUsuario)
         </dd>
         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.PerfilId)
+            @Html.DisplayNameFor(model => model.Perfil.NomePerfil)
         </dt>
         <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.PerfilId)
+            @Html.DisplayFor(model => model.Perfil.NomePerfil)
         </dd>
     </dl>
 </div>

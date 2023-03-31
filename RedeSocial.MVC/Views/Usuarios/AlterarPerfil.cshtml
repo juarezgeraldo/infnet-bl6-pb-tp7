@@ -1,0 +1,34 @@
+﻿@model RedeSocial.MVC.Models.AlterarPerfilViewModel
+
+@{
+    ViewData["Title"] = "AlterarPerfil";
+}
+
+<h1>AlterarPerfil</h1>
+
+<h4>Usuario</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="AlterarPerfil">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                @Html.DropDownListFor(
+                    x => x.AlterarPerfil.PerfilId,
+                    new SelectList(Model.Perfis, "PerfilId", "NomePerfil")
+                    )
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Detalhes">Meu Perfil</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

@@ -1,27 +1,56 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using AzureBlobs;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using RedeSocial.API.DTOs;
 using RedeSocial.BLL.Models;
 using RedeSocial.DAL.Data;
 
+public enum PerfilEnum
+{
+    Público = 1,
+    Privado = 2
+}
+
 namespace RedeSocial.API.Controllers
 {
-    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class MidiasController : Controller
     {
         private readonly ApplicationDbContext _context;
-        public MidiasController(ApplicationDbContext context)
+        private BlobService _blobService;
+        private readonly UserManager<ApplicationUser> _userManager;
+        public MidiasController(ApplicationDbContext context, UserManager<ApplicationUser> userManager)
         {
             _context = context;
+            _blobService = new BlobService();
+            _userManager = userManager;
         }
 
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Midia>>> GetMidias()
         {
-            return await _context.Midias.ToListAsync();
+            var midias = new List<Midia>();
+            await using var context = _context;
+            var innerJoin = from m in context.Midias
+                join u in context.Users on m.NomeUsuario equals u.UserName
+                where u.PerfilId == (int) PerfilEnum.Público
+                select new
+                Midia()
+                {
+                    Titulo = m.Titulo,
+                    EnderecoBlob = m.EnderecoBlob,
+                    Id = m.Id,
+                    NomeUsuario = m.NomeUsuario
+                };
+
+            midias = innerJoin.ToList();
+
+            return midias;
         }
+
         [HttpGet("{id}")]
         public async Task<ActionResult<Midia>> GetMidia(int id)
         {
@@ -37,10 +66,9 @@ namespace RedeSocial.API.Controllers
         [Route("ListarMidiaUsuario")]
         public async Task<ActionResult<List<Midia>>> ListarMidiaUsuario(string nomeUsuario)
         {
-            var retorno = await _context.Midias.ToListAsync();
-
-            return retorno.FindAll(x => x.NomeUsuario.Contains(nomeUsuario));
-
+            await using var context = _context;
+            var retorno = context.Midias.Where(m => m.NomeUsuario == nomeUsuario).ToList();
+            return retorno;
         }
 
         [HttpPut("{id}")]
@@ -70,15 +98,25 @@ namespace RedeSocial.API.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<Midia>> PostMidia(Midia midia)
+        [Authorize]
+        public async Task<ActionResult<Midia>> PostMidia(MidiaDto midia)
         {
-            _context.Midias.Add(midia);
+            var enderecoBlob = await _blobService.AdicionarBlobAoContainer(midia.Base64);
+            var midiaModel = new Midia()
+            {
+                EnderecoBlob = enderecoBlob,
+                NomeUsuario = User.Identity.Name,
+                Titulo = midia.Titulo
+            };
+
+            var midiaGerada = _context.Midias.Add(midiaModel);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetMidia", new { id = midia.Id }, midia);
+            return CreatedAtAction("GetMidia", new { id = midiaGerada.Entity.Id }, midiaGerada.Entity);
         }
 
         [HttpDelete("{id}")]
+        [Authorize]
         public async Task<IActionResult> DeleteMidia(int id)
         {
             var midia = await _context.Midias.FindAsync(id);

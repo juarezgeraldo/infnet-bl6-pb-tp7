@@ -27,6 +27,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Blobs\Blobs.csproj" />
     <ProjectReference Include="..\RedeSocial.BLL\RedeSocial.BLL.csproj" />
     <ProjectReference Include="..\RedeSocial.DAL\RedeSocial.DAL.csproj" />
   </ItemGroup>

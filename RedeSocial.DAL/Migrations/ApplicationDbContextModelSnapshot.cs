@@ -215,7 +215,9 @@ namespace RedeSocial.DAL.Migrations
                         .IsUnique()
                         .HasDatabaseName("UserNameIndex");
 
-                    b.ToTable("AspNetUsers", (string)null);
+                    b.HasIndex("PerfilId");
+
+                    b.ToTable("ApplicationUser", (string)null);
                 });
 
             modelBuilder.Entity("RedeSocial.BLL.Models.Midia", b =>
@@ -243,7 +245,7 @@ namespace RedeSocial.DAL.Migrations
 
             modelBuilder.Entity("RedeSocial.BLL.Models.Perfil", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<int>("PerfilId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
@@ -254,7 +256,7 @@ namespace RedeSocial.DAL.Migrations
                     b.Property<bool>("isAdministrador")
                         .HasColumnType("tinyint(1)");
 
-                    b.HasKey("Id");
+                    b.HasKey("PerfilId");
 
                     b.ToTable("Perfis");
                 });
@@ -308,6 +310,17 @@ namespace RedeSocial.DAL.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("RedeSocial.BLL.Models.ApplicationUser", b =>
+                {
+                    b.HasOne("RedeSocial.BLL.Models.Perfil", "Perfil")
+                        .WithMany()
+                        .HasForeignKey("PerfilId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Perfil");
                 });
 #pragma warning restore 612, 618
         }

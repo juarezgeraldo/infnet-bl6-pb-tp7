@@ -1,9 +1,9 @@
-﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
+using RedeSocial.BLL.Models;
 
-namespace RedeSocial.BLL.Models
+namespace RedeSocial.BLL.DTOs
 {
-    public class Usuario
+    public class UsuarioDto
     {
         [Required]
         public string NomeUsuario { get; set; }
@@ -15,7 +15,7 @@ namespace RedeSocial.BLL.Models
         [Required]
         public string NomeCompletoUsuario { get; set; }
         [Required]
-        public Perfil Perfil { get; set; }
+        public int PerfilId { get; set; }
 
     }
 }
