@@ -9,13 +9,30 @@
 <p>
     <a asp-action="Criar">Postar Nova Mídia</a>
 </p>
+
+@{
+    var numberOfColsNeeded = 3;
+    var totalCounter = Model.Count();
+    var itemCounter = 1;
+}
+
 @foreach (var midia in Model) {
-    <div class="card" style="width: 18rem;">
-        <img src="@midia.EnderecoBlob" class="card-img-top" alt="...">
-        <div class="card-body">
-            <h5 class="card-title">@midia.Titulo</h5>
-            <p>@midia.NomeUsuario</p>
-            @*<a href="#" class="btn btn-primary">Go somewhere</a>*@
+    if (itemCounter % numberOfColsNeeded == 1)
+    {
+        @:<div class="row" >
+    }
+    <div class="col-sm-4">
+        <div class="card" style="width: 18rem;">
+            <img src="@midia.EnderecoBlob" class="card-img-top" alt="...">
+            <div class="card-body">
+                <h5 class="card-title">@midia.Titulo</h5>
+                <p>@midia.NomeUsuario</p>
+            </div>
         </div>
     </div>
+    if ((itemCounter % numberOfColsNeeded == 0) || ((itemCounter) == totalCounter))
+    {
+        @:</div>
+    }
+    itemCounter++;
 }
